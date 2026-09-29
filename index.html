@@ -750,6 +750,8 @@ h3{margin:18px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercas
 #panelBody>*{flex-shrink:0}
 #panel header .row{justify-content:space-between;align-items:center;flex-wrap:nowrap}
 #panel header h2{font-size:20px}
+.dist{display:flex;height:24px;border-radius:7px;overflow:hidden;margin-top:8px;gap:2px}
+.dist span{display:grid;place-items:center;min-width:0;font:800 12px/1 var(--font-num);color:#10160f;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
 .legend.compact{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;margin-top:8px}
 .legend.compact button{grid-template-columns:14px 1fr auto;gap:8px;padding:7px 8px;background:var(--surface-2)}
 .legend.compact button[aria-pressed="true"]{outline:2px solid var(--accent)}
@@ -1041,10 +1043,12 @@ function renderSummary(){
   const tot = {};
   DATA.pots.forEach(p=>{ const hs=p.hist[camp]||[]; hs.forEach(h=>{ tot[h.uso]=(tot[h.uso]||0)+p.ha/hs.length; }); });
   const usos = ORDER.filter(u=>tot[u]); const n = nChanges();
+  const all = usos.reduce((a,u)=>a+tot[u],0); const pct = u => Math.round(tot[u]/all*100);
   $('#sheetBody').innerHTML = `
     <div class="row" style="justify-content:space-between;align-items:baseline"><h2 style="font-size:18px">${esc(c.etiqueta)}</h2><span class="meta">tocá un potrero</span></div>
+    <div class="dist" role="img" aria-label="Distribución: ${usos.map(u=>esc(u)+' '+pct(u)+'%').join(', ')}">${usos.map(u=>`<span style="flex:${tot[u]};background:${USOS[u].c}" title="${esc(u)}: ${pct(u)}% · ${fmtHa(tot[u])} ha">${tot[u]/all>=0.06?pct(u)+'%':''}</span>`).join('')}</div>
     <div class="legend compact" role="group" aria-label="Resaltar un uso en el mapa">
-      ${usos.map(u=>`<button data-u="${esc(u)}" aria-pressed="${highlightUso===u}"><span class="sw" style="background:${USOS[u].c}"></span><span>${esc(u)}</span><span class="ha">${fmtHa(tot[u])} ha</span></button>`).join('')}
+      ${usos.map(u=>`<button data-u="${esc(u)}" aria-pressed="${highlightUso===u}"><span class="sw" style="background:${USOS[u].c}"></span><span>${esc(u)}</span><span class="ha">${fmtHa(tot[u])} ha${tot[u]/all<0.06?` <span class="meta">· ${pct(u)}%</span>`:''}</span></button>`).join('')}
     </div>
     ${n?`<button class="pill" id="chgPill">${n} cambio(s) guardado(s) en este teléfono: pasarlos a Claude</button>`:''}
   `;
