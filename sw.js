@@ -1,6 +1,6 @@
 // Con señal: trae la última versión (revalida por ETag, no re-baja si no cambió).
 // Sin señal o señal débil (>4 s): usa la copia guardada, satélite incluido.
-const CACHE='lp-potreros-1a8ccd14a1';
+const CACHE='lp-potreros-f635f0be58';
 const FILES=['./','./manifest.webmanifest','./icon-180.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
